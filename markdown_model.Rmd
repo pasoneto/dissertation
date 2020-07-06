@@ -1,0 +1,280 @@
+---
+title: "Models Dissertation"
+output: html_document
+---
+
+```{r 1, include=FALSE}
+library(data.table)
+library(dplyr)
+library(gridExtra)
+library(xlsx)
+library(readxl)
+options(warn = -1)
+#Set working directory
+setwd("C:/Users/Lenovo/Desktop/world/Ciência/UFABC/Dissertação/scripts") 
+```
+
+In order to replicate the script below, download data files for [exp1](exp1.csv). and [exp2](exp2.xlsx). Also, enable the following packages data.table, dplyr, gridExtra, xlsx, readxl.
+
+## Model 1 
+
+Evaluating equation 2, described in Chapter 6.
+
+```{r 2, include=TRUE}
+#Read data set
+data = 
+  fread('exp1.csv', index = NULL) 
+
+#Building model
+overall_m =
+  lm(response ~
+       
+       cent+
+       scale_step:factor(condition)+
+       cent:factor(condition),
+       
+     data = data
+     )
+```
+
+Summary statistics shown below are described in chapter 6, section 2 form dissertation.  
+
+```{r 3, include=TRUE}
+summary(overall_m)
+```
+
+Evaluating normality of residuals
+
+```{r 4, include=TRUE}
+hist(overall_m$residuals)
+shapiro.test(overall_m$residuals)
+```
+
+There seems to be a non-normal distribution of residuals. Next, i will transform our dependent variable to z-scores.
+
+## Normalizing dependent variable
+
+```{r 5, include=TRUE}
+#empty column to receive z
+data$z_score <- 0
+
+#Splits df by participant
+data = 
+  split(data, data$participant_id)
+
+#Computes z for eack participant, separatelly
+for(i in 1:length(data)){
+  media = mean(data[[i]]$response, na.rm = T)
+  sd = sd(data[[i]]$response, na.rm = T)
+  data[[i]]$z_score = ( (data[[i]]$response - media) / sd )
+}
+
+#Reunites data frame
+data =
+  bind_rows(data)
+```
+
+## Reevaluating model with z-scores instead of raw scores 
+
+```{r 6, include=TRUE}
+#Model normal
+overall_normal =
+  lm(z_score ~
+       
+       #scale_step+
+       cent+
+       scale_step:factor(condition)+
+       cent:factor(condition),
+     
+     data = data
+  )
+```
+
+Results show below are not reported in the dissertation.
+
+```{r 7, include=TRUE}
+summary(overall_normal)
+```
+
+## Differences in the model from raw to normalized dependent variables:
+
+
+1) Slope of cents is different within the atonal condition, which is in line with my hypothesis (described in equation 2 from dissertation). In the model with raw scores this difference was only marginally significant. 
+
+2) Scale steps are significant within the atonal condition, which is not in line with my hypothesis, and which does not make conceptual sense. Possible explanation: there is an overlap between increases in scale steps and increases in cents in our design. When cents increase, scale steps always increase, so the significant slope of scale steps for T = 0 could have inherited from the slope of cents (in the previous model, Sc was marginally significant for T = 0).
+
+Note: residuals are still non-normal:
+```{r 8, include=TRUE}
+shapiro.test(overall_normal$residuals)
+```
+
+
+## SIMULATION 1
+
+Function created to simulate intervallic perception. Parameters are described in equation 3 from dissertation. As explained in the dissertation, I did not use the slope of scale steps, since it was non-significant within the atonal condition, and since it does not make conceptual sense. 
+
+```{r 9, include=TRUE}
+interval_finding = 
+  function(c, sc, t){
+    return(7.19 + ((0.063*c) + (-0.017*c*t))  + ((1.62*sc*t) + (2.28*sc*t)))
+  }
+```
+
+In the code above, if T = 0, intervallic distance is simply a function of C. If T = 1, effect of c is diminished by -0.017*C. If T = 1, effect of scale steps equals 
+the effect of scale steps when T = 0 + effect of scale steps when T = 1.
+
+Calculating intervallic distances.
+```{r 10, include=TRUE}
+#Plotting generating concise data frame
+plot<- plyr::ddply(data, c('condition', 'interval'), summarise,
+                   N    = length(response),
+                   mean = mean(response, na.rm = TRUE),
+                   sd   = sd(response, na.rm = TRUE),
+                   se = sd / sqrt(N),
+                   cent = mean(cent),
+                   scale_step = mean(scale_step)
+)
+
+#Calculating intervallic distances based on the model
+#described in the dissertation
+distance = c()
+for(i in 1:length(plot$condition)){
+  distance = c(distance, 
+               #Function to calculate intervallic distances (defined above)
+               interval_finding(c = plot$cent[i], 
+                                sc = plot$scale_step[i], 
+                                t = plot$condition[i]))
+}
+plot$simu <- distance
+```
+
+Plotting results
+
+```{r 11, include=TRUE}
+library(ggplot2)
+#Plotting
+exp <- ggplot(plot, aes(x=as.factor(interval), y=mean, colour = as.factor(condition))) +
+  geom_errorbar(size = 0.9, aes(ymin=mean-se, ymax=mean+se), width=.5, position=position_dodge(0.5)) +
+  geom_point(shape = 21, size = 2.5, position=position_dodge(0.5), fill = 'white')+
+  theme(legend.title = element_blank(), legend.justification = "left")+
+  theme(legend.position="bottom")+
+  guides(col=guide_legend("Condition"))+
+  ylab('Average estimated distance')+
+  xlab('Intervals')+
+  ylim(c(25, 45))
+
+simu <-  ggplot(data = plot, aes(x = as.factor(interval), 
+                                 y = simu,
+                                 group = as.factor(condition),
+                                 colour = as.factor(condition)
+                                 ))+
+              ylab('Simulated distances')+
+              xlab('Intervals')+
+              theme(legend.position="bottom")+
+              guides(col=guide_legend("Condition"))+
+              geom_line(linetype = 2, size = 1)+
+              ylim(c(25, 45))
+
+final = grid.arrange(exp, simu, nrow = 1)
+```
+
+## SIMULATION 2
+
+As described in chapter 6, here we estimate intervallic distances from experiment 2 based on our model fitted in experiment 1.
+
+```{r 12, include=TRUE}
+#Estimating intervallic distances based on equation 3
+t_minor = interval_finding(c = 300, sc = 2, t = 1)
+t_major = interval_finding(c = 400, sc = 2, t = 1)
+at_minor = interval_finding(c = 300, sc = 2, t = 0)
+at_major = interval_finding(c = 400, sc = 2, t = 0)
+```
+
+The difference in perceived-distance between intervals in experiment 2 could explain the difference in d'primes that we found (Details in chapter 5). Bellow we calculate these differences, for T = 0 and T = 1
+
+```{r 13, include=TRUE}
+dif_t = abs(t_minor - t_major) #difference in tonal condition
+dif_at = abs(at_minor - at_major) #difference in atonal condition
+```
+
+Below I simply read data from experiment 2. Dowload .csv file here.
+
+```{r 14, include=TRUE}
+#Reading data from exp 2
+dados = 
+  read_excel("exp2.xlsx")
+
+#Filtering out participants as described in the dissertation
+dados <- filter(dados, 
+                filtro_overall == 0)
+
+#Selecting ariables of interest
+graficos <- data.frame(participants = c(dados$participants),
+                       d_atonal = dados$d_atonal,
+                       d_tonal = dados$d_tonal,
+                       Training = dados$Training)
+
+#Changing from wide to long format
+graficos <- melt(data = graficos, d_prime = c("d_atonal", 
+                                              "d_tonal"), 
+                        id.var = c("Training",
+                                   "participants"))
+```
+
+Now I attribute the simulated values that we found for different intervals when T = 0 and T = 1 to each interval in experiment 2
+
+```{r 15, include=TRUE}
+#Adding empti column to receive simulated distance values
+graficos$distance = 0
+
+#Adding values to mach condition (0 = atonal; 1 = tonal)
+graficos$distance[1:368]= dif_at
+graficos$distance[369:nrow(graficos)]= dif_t
+
+```
+
+## Model 2
+
+As explained in chapter 6, section 2 from dissertation, here I try to explain the variance in d'primes (from experiment 2) in relation to the difference between target and standard stimuli when T = 0 and T = 1.
+
+Following a basic principle of signal detection theory, a larger difference between target and standard stimuli would result in a larger d'prime.
+
+
+```{r 16, include=TRUE}
+model2 = 
+  lm(data = graficos, 
+     formula = value~distance) #Value == d1primes. Distance were calculated above.
+```
+
+Testing model 2 was a mere formality. We know that, based on equation 3, the difference between major and minor thirds (300 vs 400 cents) would be larger within the atonal condition. We also know that d'primes were way larger within the atonal condition from experiment 2, so the results should be obvious: larger differences caused larger d'primes. Results below:
+
+```{r 17, include=TRUE}
+summary(model2)
+```
+
+Finally, I plot simulated distances between intervals when T = 0 and T = 1 against differences in d'prime between these 2 conditions.
+
+```{r 18, include=TRUE}
+
+#Plotting model 2
+plot<- plyr::ddply(graficos, c('variable', 'distance'), summarise,
+                   N    = length(value),
+                   mean = mean(value, na.rm = TRUE),
+                   sd   = sd(value, na.rm = TRUE),
+                   se = sd/sqrt(N)
+)
+
+distance = 
+  ggplot(data = plot, aes(x = variable, y = distance, group = 1))+
+    geom_line(linetype = 2, size = 0.5)+
+    ylab('Distance')
+
+d_prime = 
+  ggplot(data = plot, aes(x = variable, y = mean, group = 1))+
+    geom_line(size = 0.5)+
+    geom_errorbar(size = 0.5, aes(ymin=mean-se, ymax=mean+se), width=.2, position=position_dodge(0.5)) +
+    geom_point(shape = 21, size = 2.5, position=position_dodge(0.5), fill = 'white')+
+    ylab('d-prime')
+
+final2 = grid.arrange(distance, d_prime, nrow = 1)
+```
