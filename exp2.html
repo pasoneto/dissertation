@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Experiment 2</title>
+<style>
+.split {
+  height: 100%;
+  width: 50%;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  overflow-x: hidden;
+  padding-top: 20px;
+}
+
+/* Control the left side */
+.left {
+  left: 0;
+  background-color: #111;
+}
+
+/* Control the right side */
+.right {
+  right: 0;
+  background-color: red;
+}
+
+/* If you want the content centered horizontally and vertically */
+.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+
+body {
+  color: white
+}
+
+h1 {
+  color: white;
+}
+
+</style>
+</head>
+<body>
+
+
+<div class="split left">
+  <div class="centered">
+
+<h1>Atonal intervals</h1>
+
+<p>Interval 1</p>
+<audio controls>
+  <source src="audios/at_dev_a.wav">
+  Your browser does not support the audio tag.
+</audio>
+
+<p>Interval 2</p>
+<audio controls>
+  <source src="audios/at_st_c.wav">
+  Your browser does not support the audio tag.
+</audio>
+
+<p>Interval 3</p>
+<audio controls>
+  <source src="audios/at_st_f.wav">
+  Your browser does not support the audio tag.
+</audio>
+
+<p>Interval 4</p>
+<audio controls>
+  <source src="audios/at_st_g.wav">
+  Your browser does not support the audio tag.
+</audio>
+
+  </div>
+</div>
+
+
+<div class="split right">
+  <div class="centered">
+
+<h1>Tonal intervals</h1>
+
+<p>Interval 1</p>
+<audio controls>
+  <source src="audios/ton_dev_a.wav">
+  Your browser does not support the audio tag.
+</audio>
+
+<p>Interval 2</p>
+<audio controls>
+  <source src="audios/ton_st_c.wav">
+  Your browser does not support the audio tag.
+</audio>
+
+<p>Interval 3</p>
+<audio controls>
+  <source src="audios/ton_st_f.wav">
+  Your browser does not support the audio tag.
+</audio>
+
+<p>Interval 4</p>
+<audio controls>
+  <source src="audios/ton_st_g.wav">
+  Your browser does not support the audio tag.
+</audio>
+  </div>
+</div>
+
+
+</body>
+</html>
