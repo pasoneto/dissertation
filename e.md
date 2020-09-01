@@ -149,7 +149,7 @@ h1 {
 
 }
 </style>
-# Hipóteses
+# Hipóteses (tonal)
 
 ![bg size: 80%](principal-png/pergunta1.png) 
 
@@ -169,7 +169,7 @@ h1 {
 
 }
 </style>
-# Hipóteses
+# Hipóteses (atonal)
 
 ![bg size: 80%](principal-png/pergunta2.png) 
 
@@ -244,7 +244,7 @@ _footer: Experimento 2: Estímulos
 
 # Hipóteses
 
-- Intervalos percebidos em função de grau de escals
+- Intervalos percebidos em função de grau de escalas
 - Diferença de cent mais saliente na condição atonal
 
 ![bg right:50% size: 80%](principal-png/oddball.png) 
@@ -265,10 +265,25 @@ _footer: Experimento 2: Resultados
 
 # Discussão e conclusões
 
-- Graus de escala como descritores de intervalo
+- ### **Graus de escala como descritores de intervalo**
 - Abstrações acústicas vs abstrações musicais
 - Aplicações
 
+---
+
+# Discussão e conclusões
+
+- Graus de escala como descritores de intervalo
+- ### **Abstrações acústicas vs abstrações musicais**
+- Aplicações
+
+---
+
+# Discussão e conclusões
+
+- Graus de escala como descritores de intervalo
+- Abstrações acústicas vs abstrações musicais
+- ### **Aplicações**
 
 ---
 
