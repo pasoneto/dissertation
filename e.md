@@ -199,7 +199,7 @@ _footer: Experimento 1: Hipótese 2
 Primers tonais e atonais
 
 
-![bg right:30% size: 50%](principal-png/audii.png) 
+![bg right:30% size: 50%](principal-png/qr_exp1.png) 
 
 <!--
 _footer: Experimento 1: Estímulos
@@ -233,12 +233,22 @@ _footer: Experimento 1: Resultados
 Blocos 1 e 2
 
 
-![bg right:30% size: 80%](principal-png/oddball.png) 
+![bg right:30% size: 60%](principal-png/qr_exp2.png) 
 
 <!--
 _footer: Experimento 2: Estímulos
 -->
 ---
+
+---
+
+# Hipóteses
+
+- Intervalos percebidos em função de grau de escals
+- Diferença de cent mais saliente na condição atonal
+
+![bg right:50% size: 80%](principal-png/oddball.png) 
+
 
 ---
 
