@@ -117,7 +117,7 @@ section {
 }
 h1 {
   position: fixed;
-  top: 3em;
+  top: 2em;
 
 }
 </style>
